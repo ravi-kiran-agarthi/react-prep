@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Senior React prep: performance playbook, katas, 12-week plan, tracker.">
+<title>React Prep</title>
+<script>
+(function(){var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t})();
+</script>
+<style>
+:root{--bg:#f4f5f7;--fg:#111827;--card:#fff;--mut:#6b7280;--bd:#e5e7eb;--ac:#2563eb;--code:#eef0f3}
+@media(prefers-color-scheme:dark){:root{--bg:#0b0f14;--fg:#e5e7eb;--card:#151b23;--mut:#9ca3af;--bd:#263040;--ac:#60a5fa;--code:#0f151c}}
+:root[data-theme=light]{--bg:#f4f5f7;--fg:#111827;--card:#fff;--mut:#6b7280;--bd:#e5e7eb;--ac:#2563eb;--code:#eef0f3}
+:root[data-theme=dark]{--bg:#0b0f14;--fg:#e5e7eb;--card:#151b23;--mut:#9ca3af;--bd:#263040;--ac:#60a5fa;--code:#0f151c}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bd)}
+h1{font-size:1.1rem;margin:0}
+h2{font-size:1.25rem;margin:0 0 4px}
+h3{font-size:1rem;margin:16px 0 6px}
+button,select{background:var(--card);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:6px 10px;font:inherit;min-height:40px;cursor:pointer}
+nav{display:flex;gap:8px;padding:10px 16px;border-bottom:1px solid var(--bd);overflow-x:auto}
+nav a{flex:none;display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid var(--bd);border-radius:22px;background:var(--card);color:inherit;text-decoration:none;font-weight:600;white-space:nowrap}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+main{max-width:900px;margin:0 auto;padding:0 16px 64px}
+section{padding:24px 0;content-visibility:auto;contain-intrinsic-size:auto 800px}
+.sub{color:var(--mut);margin:0 0 12px}
+.card,details{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin:0 0 10px}
+summary{cursor:pointer;font-weight:600;min-height:28px}
+details[open] summary{margin-bottom:8px}
+ul,ol{margin:6px 0;padding-left:20px}
+li{margin:3px 0}
+pre{background:var(--code);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;overflow-x:auto;font:13px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;margin:8px 0}
+code{font:.9em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--code);padding:1px 5px;border-radius:4px}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;font-size:.92rem;display:block;overflow-x:auto}
+th,td{border-bottom:1px solid var(--bd);padding:6px 8px;text-align:left;vertical-align:top}
+.tag{display:inline-block;font-size:.75rem;padding:1px 8px;border:1px solid var(--bd);border-radius:10px;color:var(--mut);margin-left:6px}
+.hero{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px;margin-top:16px}
+.bar{height:10px;background:var(--bd);border-radius:5px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;width:0;background:var(--ac);transition:width .2s}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+label.ck{display:flex;gap:10px;align-items:flex-start;min-height:32px;padding:3px 0;cursor:pointer}
+label.ck input{width:20px;height:20px;flex:none;margin-top:2px}
+label.ck input:checked+span{color:var(--mut);text-decoration:line-through}
+.wk{display:grid;gap:10px}
+.toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:9}
+.toast[hidden]{display:none}
+</style>
+</head>
+<body>
+<header>
+<h1>React Prep</h1>
+<button id="th" type="button" aria-label="Toggle theme">Theme: system</button>
+</header>
+<nav aria-label="Sections">
+<a href="#perf">Performance</a>
+<a href="#core">Core drills</a>
+<a href="#katas">Katas</a>
+<a href="#plan">12-week plan</a>
+<a href="#track">Tracker</a>
+<a href="#rules">Rules</a>
+</nav>
+<main>
+
+<div class="hero">
+<strong>Principle:</strong> drill the small set of fundamentals everything else is built on. Look up the rest when you need it.
+<div class="sub">Depth: React, TypeScript, the browser, testing. Breadth: everything else. New tools go to the parking lot.</div>
+</div>
+
+<section id="perf">
+<h2>Performance playbook</h2>
+<p class="sub">Measure first. Fix the biggest bottleneck. Measure again.</p>
+
+<details open><summary>Workflow: how to attack any slow page</summary>
+<ol>
+<li><b>Reproduce</b> with throttling (CPU 4x, Slow 4G) and a production build.</li>
+<li><b>Classify</b>: slow load (network, bundle), slow interaction (main thread, re-renders), or layout shift.</li>
+<li><b>Measure</b>: Lighthouse and DevTools Performance for load, React Profiler for renders, Network waterfall for requests.</li>
+<li><b>Fix the largest cost</b>, one change at a time.</li>
+<li><b>Verify</b> with before/after numbers. Write them down.</li>
+</ol>
+</details>
+
+<details><summary>Core Web Vitals targets</summary>
+<table>
+<tr><th>Metric</th><th>Good</th><th>Main levers</th></tr>
+<tr><td>LCP (loading)</td><td>&le; 2.5s</td><td>Preload hero image, <code>fetchpriority="high"</code>, SSR/static HTML, cut render-blocking JS/CSS, CDN and caching</td></tr>
+<tr><td>INP (responsiveness)</td><td>&le; 200ms</td><td>Break up long tasks, <code>useTransition</code>, defer non-urgent work, fewer re-renders, virtualize lists</td></tr>
+<tr><td>CLS (stability)</td><td>&le; 0.1</td><td>Width/height or <code>aspect-ratio</code> on media, reserve space for async content, avoid inserting above existing content, font <code>size-adjust</code></td></tr>
+<tr><td>TTFB</td><td>&le; 800ms</td><td>Edge/CDN, caching headers, streaming SSR</td></tr>
+</table>
+</details>
+
+<details><summary>Loading and bundle size</summary>
+<ul>
+<li>Code-split by route and by heavy component: <code>React.lazy</code> + <code>Suspense</code>, or <code>import()</code> on interaction.</li>
+<li>Analyze the bundle (<code>vite-bundle-visualizer</code>, <code>@next/bundle-analyzer</code>). Look for moment, lodash, big icon packs, duplicate deps.</li>
+<li>Import narrowly: <code>import debounce from "lodash/debounce"</code>, or use a small native alternative. Keep tree-shaking working (ESM, <code>sideEffects: false</code>).</li>
+<li>Preconnect to critical origins, preload critical fonts (<code>font-display: swap</code>), use <code>modulepreload</code>.</li>
+<li>Images: AVIF/WebP, <code>srcset</code>/<code>sizes</code>, <code>loading="lazy"</code> below the fold, explicit dimensions.</li>
+<li>Cache: hashed assets with <code>Cache-Control: public, max-age=31536000, immutable</code>; HTML with <code>no-cache</code> or short TTL.</li>
+<li>Third-party scripts: load with <code>async</code>/<code>defer</code>, or after interaction. Audit them regularly.</li>
+</ul>
+<pre><code>const Chart = lazy(() =&gt; import("./Chart"));
+&lt;Suspense fallback={&lt;Skeleton h={240} /&gt;}&gt;&lt;Chart /&gt;&lt;/Suspense&gt;</code></pre>
+</details>
+
+<details><summary>Rendering: stop wasted re-renders</summary>
+<ul>
+<li><b>Colocate state</b> as low as possible. Most re-render problems vanish here.</li>
+<li><b>Lift content up</b>: pass expensive subtrees as <code>children</code> so a state change in the parent doesn't re-create them.</li>
+<li><code>memo</code> only on components that are expensive and re-render with equal props. It needs stable props.</li>
+<li><code>useMemo</code>/<code>useCallback</code>: for expensive calculations, or to keep identity stable for <code>memo</code> children and effect deps. Not everywhere.</li>
+<li><b>Split context</b> by update frequency. Or use a selector-based store (Zustand, <code>useSyncExternalStore</code>) so consumers subscribe to slices.</li>
+<li>Stable, unique <b>keys</b>. Never array index for reorderable lists.</li>
+<li>Derive values during render instead of syncing them with <code>useEffect</code> + <code>setState</code>.</li>
+<li>Check whether the React Compiler is enabled in your stack before hand-memoizing.</li>
+</ul>
+<pre><code>// Before: typing re-renders the heavy list
+function Page(){ const [q,setQ]=useState(""); return &lt;&gt;&lt;input value={q} onChange={e=&gt;setQ(e.target.value)}/&gt;&lt;HeavyList/&gt;&lt;/&gt; }
+// After: state lives in its own component
+function Search(){ const [q,setQ]=useState(""); return &lt;input value={q} onChange={e=&gt;setQ(e.target.value)}/&gt; }
+function Page(){ return &lt;&gt;&lt;Search/&gt;&lt;HeavyList/&gt;&lt;/&gt; }</code></pre>
+</details>
+
+<details><summary>Concurrent React: keep input responsive</summary>
+<ul>
+<li><code>useTransition</code> marks a state update as non-urgent (tab switch, filter) so typing and clicks stay snappy.</li>
+<li><code>useDeferredValue</code> lets a slow consumer lag behind a fast value (search input &rarr; results).</li>
+<li><code>Suspense</code> boundaries around slow parts so the rest of the page renders first.</li>
+<li>Split long tasks (&gt;50ms): chunk work, <code>scheduler.yield()</code> or <code>setTimeout</code>, Web Workers for CPU-heavy code.</li>
+</ul>
+<pre><code>const [isPending, startTransition] = useTransition();
+onChange={e =&gt; { setInput(e.target.value); startTransition(() =&gt; setQuery(e.target.value)); }}</code></pre>
+</details>
+
+<details><summary>Lists, tables and large data</summary>
+<ul>
+<li><b>Virtualize</b> beyond a few hundred rows (TanStack Virtual, react-window). Render only what is visible.</li>
+<li>Paginate or infinite-scroll on the server. Don't ship 10k rows.</li>
+<li><code>content-visibility: auto</code> + <code>contain-intrinsic-size</code> to skip rendering offscreen sections cheaply.</li>
+<li>Debounce search input; cancel stale requests with <code>AbortController</code>.</li>
+<li>Keep row components small and memoized, with stable callbacks (pass an id, not a new closure per row, where it matters).</li>
+</ul>
+</details>
+
+<details><summary>Data fetching and caching</summary>
+<ul>
+<li>Use TanStack Query (or similar) for server state: dedupe, cache, background refresh, retries.</li>
+<li>Avoid request waterfalls: fetch in parallel, prefetch on hover/route intent, hoist fetches to the route level.</li>
+<li>Tune <code>staleTime</code> to cut refetching; use <code>select</code> to subscribe to slices; optimistic updates for instant feel.</li>
+<li>HTTP: ETag/conditional requests, compression (br/gzip), HTTP/2+, <code>stale-while-revalidate</code>.</li>
+<li>Server Components / SSR / streaming: send HTML early, keep client JS small. Mark only interactive parts <code>"use client"</code>.</li>
+</ul>
+</details>
+
+<details><summary>Browser rendering and CSS</summary>
+<ul>
+<li>Animate <code>transform</code> and <code>opacity</code> only. Avoid animating layout properties.</li>
+<li>Avoid layout thrashing: batch DOM reads then writes.</li>
+<li>Use <code>contain</code>, <code>will-change</code> sparingly, and passive event listeners for scroll/touch.</li>
+<li>Inline critical CSS, avoid large CSS-in-JS runtime cost on hot paths, prefer CSS variables for theming.</li>
+<li>Respect <code>prefers-reduced-motion</code>.</li>
+</ul>
+</details>
+
+<details><summary>Memory and leaks</summary>
+<ul>
+<li>Clean up effects: listeners, timers, subscriptions, observers, <code>AbortController</code>.</li>
+<li>Watch for closures retaining big objects, unbounded caches, detached DOM nodes.</li>
+<li>DevTools &rarr; Memory: take heap snapshots before/after an action and compare.</li>
+</ul>
+</details>
+
+<details><summary>Profiling toolbox</summary>
+<table>
+<tr><th>Tool</th><th>Use it for</th></tr>
+<tr><td>React DevTools Profiler</td><td>Which components render, why (enable "record why each component rendered"), commit durations</td></tr>
+<tr><td>Chrome Performance</td><td>Long tasks, scripting vs. rendering vs. painting, INP interactions</td></tr>
+<tr><td>Network panel</td><td>Waterfall, blocking requests, cache hits, payload sizes</td></tr>
+<tr><td>Lighthouse / PageSpeed</td><td>Lab Core Web Vitals, actionable audits</td></tr>
+<tr><td><code>web-vitals</code> library</td><td>Real-user field data</td></tr>
+<tr><td>Bundle analyzer</td><td>What is in the JS and what is duplicated</td></tr>
+<tr><td><code>why-did-you-render</code></td><td>Spotting avoidable re-renders in dev</td></tr>
+</table>
+<pre><code>import { onLCP, onINP, onCLS } from "web-vitals";
+[onLCP, onINP, onCLS].forEach(f =&gt; f(m =&gt; navigator.sendBeacon("/vitals", JSON.stringify(m))));</code></pre>
+</details>
+
+<details><summary>Performance review checklist</summary>
+<ul>
+<li>Production build, throttled CPU and network</li>
+<li>LCP element identified and prioritized</li>
+<li>Route-level code splitting in place; bundle analyzed</li>
+<li>No request waterfalls; data cached</li>
+<li>State colocated; contexts split; lists virtualized</li>
+<li>No long tasks over 50ms on key interactions</li>
+<li>Images sized, modern format, lazy below the fold</li>
+<li>Fonts preloaded with swap; no layout shifts</li>
+<li>Third-party scripts audited</li>
+<li>Before/after numbers recorded</li>
+</ul>
+</details>
+</section>
+
+<section id="core">
+<h2>Core drills</h2>
+<p class="sub">Practice until automatic.</p>
+<div class="wk">
+<div class="card"><b>JS / TS core</b><ul><li>Closures, async/await, promises, event loop</li><li>Immutability, array/object transforms</li><li>Generics, narrowing, utility types</li><li>Re-implement <code>debounce</code>, <code>memoize</code>, <code>Promise.all</code>, a simple store</li></ul></div>
+<div class="card"><b>React mental model</b><ul><li>Render vs. commit, state/props flow</li><li>Effects and dependencies, stale closures</li><li>Keys, memoization trade-offs</li></ul></div>
+<div class="card"><b>Hooks</b><ul><li><code>useDebounce</code>, <code>useFetch</code>, <code>useLocalStorage</code>, <code>useIntersection</code>, <code>usePrevious</code></li></ul></div>
+<div class="card"><b>State design</b><ul><li>Local vs. server vs. URL vs. global; pick the right home</li></ul></div>
+<div class="card"><b>Component APIs</b><ul><li>Composition, compound components, controlled vs. uncontrolled, render props vs. hooks</li></ul></div>
+<div class="card"><b>Testing, a11y, web fundamentals</b><ul><li>RTL + MSW, behavior over implementation</li><li>Keyboard, ARIA, focus, semantics</li><li>HTTP caching, flex/grid, browser rendering</li></ul></div>
+</div>
+<h3>Understand once, deeply</h3>
+<p class="sub">A framework (Next.js: routing, RSC, caching), build tooling (Vite, code splitting), Web Vitals, security basics (XSS, CSRF, auth flows), frontend system design.</p>
+<h3>Sample, don't master</h3>
+<p class="sub">New UI libraries, state managers, CSS-in-JS debates. Adopt a tool only if it solves a problem you have today.</p>
+</section>
+
+<section id="katas">
+<h2>Kata snippets</h2>
+<p class="sub">Write these cold, with a timer. Open only to check afterward.</p>
+
+<details><summary>debounce <span class="tag">JS</span></summary>
+<pre><code>function debounce(fn, ms) {
+  let t;
+  return (...a) =&gt; { clearTimeout(t); t = setTimeout(() =&gt; fn(...a), ms); };
+}</code></pre></details>
+
+<details><summary>throttle <span class="tag">JS</span></summary>
+<pre><code>function throttle(fn, ms) {
+  let last = 0;
+  return (...a) =&gt; { const n = Date.now(); if (n - last &gt;= ms) { last = n; fn(...a); } };
+}</code></pre></details>
+
+<details><summary>memoize <span class="tag">JS</span></summary>
+<pre><code>function memoize(fn, key = (...a) =&gt; JSON.stringify(a)) {
+  const c = new Map();
+  return (...a) =&gt; { const k = key(...a); if (!c.has(k)) c.set(k, fn(...a)); return c.get(k); };
+}</code></pre></details>
+
+<details><summary>Promise.all <span class="tag">JS</span></summary>
+<pre><code>function all(ps) {
+  return new Promise((res, rej) =&gt; {
+    const out = []; let n = 0;
+    if (!ps.length) return res(out);
+    ps.forEach((p, i) =&gt; Promise.resolve(p).then(v =&gt; { out[i] = v; if (++n === ps.length) res(out); }, rej));
+  });
+}</code></pre></details>
+
+<details><summary>Event emitter <span class="tag">JS</span></summary>
+<pre><code>function emitter() {
+  const m = new Map();
+  return {
+    on(e, f) { (m.get(e) ?? m.set(e, new Set()).get(e)).add(f); return () =&gt; m.get(e).delete(f); },
+    emit(e, ...a) { m.get(e)?.forEach(f =&gt; f(...a)); },
+  };
+}</code></pre></details>
+
+<details><summary>useDebounce <span class="tag">hook</span></summary>
+<pre><code>function useDebounce(value, ms = 300) {
+  const [v, setV] = useState(value);
+  useEffect(() =&gt; { const t = setTimeout(() =&gt; setV(value), ms); return () =&gt; clearTimeout(t); }, [value, ms]);
+  return v;
+}</code></pre></details>
+
+<details><summary>useLocalStorage <span class="tag">hook</span></summary>
+<pre><code>function useLocalStorage(key, init) {
+  const [v, setV] = useState(() =&gt; {
+    try { const s = localStorage.getItem(key); return s ? JSON.parse(s) : init; } catch { return init; }
+  });
+  useEffect(() =&gt; { localStorage.setItem(key, JSON.stringify(v)); }, [key, v]);
+  return [v, setV];
+}</code></pre></details>
+
+<details><summary>useFetch with abort <span class="tag">hook</span></summary>
+<pre><code>function useFetch(url) {
+  const [s, setS] = useState({ data: null, error: null, loading: true });
+  useEffect(() =&gt; {
+    const ac = new AbortController();
+    setS({ data: null, error: null, loading: true });
+    fetch(url, { signal: ac.signal })
+      .then(r =&gt; { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(data =&gt; setS({ data, error: null, loading: false }))
+      .catch(error =&gt; { if (error.name !== "AbortError") setS({ data: null, error, loading: false }); });
+    return () =&gt; ac.abort();
+  }, [url]);
+  return s;
+}</code></pre></details>
+
+<details><summary>useIntersection <span class="tag">hook</span></summary>
+<pre><code>function useIntersection(opts) {
+  const ref = useRef(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() =&gt; {
+    const el = ref.current; if (!el) return;
+    const io = new IntersectionObserver(([e]) =&gt; setSeen(e.isIntersecting), opts);
+    io.observe(el);
+    return () =&gt; io.disconnect();
+  }, []);
+  return [ref, seen];
+}</code></pre></details>
+
+<details><summary>usePrevious <span class="tag">hook</span></summary>
+<pre><code>function usePrevious(v) { const r = useRef(); useEffect(() =&gt; { r.current = v; }); return r.current; }</code></pre></details>
+
+<details><summary>Tiny store with useSyncExternalStore <span class="tag">state</span></summary>
+<pre><code>function createStore(init) {
+  let s = init; const subs = new Set();
+  return {
+    get: () =&gt; s,
+    set: p =&gt; { s = { ...s, ...(typeof p === "function" ? p(s) : p) }; subs.forEach(f =&gt; f()); },
+    sub: f =&gt; (subs.add(f), () =&gt; subs.delete(f)),
+  };
+}
+const useStore = (st, sel = x =&gt; x) =&gt; useSyncExternalStore(st.sub, () =&gt; sel(st.get()));</code></pre></details>
+
+<details><summary>Stale closure bug and fixes <span class="tag">React</span></summary>
+<pre><code>// Bug: count is captured as 0 forever
+useEffect(() =&gt; { const id = setInterval(() =&gt; setCount(count + 1), 1000); return () =&gt; clearInterval(id); }, []);
+// Fix: functional update
+useEffect(() =&gt; { const id = setInterval(() =&gt; setCount(c =&gt; c + 1), 1000); return () =&gt; clearInterval(id); }, []);</code></pre></details>
+
+<details><summary>Compound component (Tabs) <span class="tag">API</span></summary>
+<pre><code>const Ctx = createContext();
+function Tabs({ children, defaultValue }) {
+  const [v, setV] = useState(defaultValue);
+  return &lt;Ctx.Provider value={{ v, setV }}&gt;{children}&lt;/Ctx.Provider&gt;;
+}
+Tabs.Tab = ({ value, children }) =&gt; {
+  const { v, setV } = useContext(Ctx);
+  return &lt;button role="tab" aria-selected={v === value} onClick={() =&gt; setV(value)}&gt;{children}&lt;/button&gt;;
+};
+Tabs.Panel = ({ value, children }) =&gt; useContext(Ctx).v === value ? &lt;div role="tabpanel"&gt;{children}&lt;/div&gt; : null;</code></pre></details>
+
+<details><summary>Optimistic update (TanStack Query) <span class="tag">data</span></summary>
+<pre><code>useMutation({
+  mutationFn: updateTodo,
+  onMutate: async t =&gt; {
+    await qc.cancelQueries({ queryKey: ["todos"] });
+    const prev = qc.getQueryData(["todos"]);
+    qc.setQueryData(["todos"], old =&gt; old.map(x =&gt; x.id === t.id ? { ...x, ...t } : x));
+    return { prev };
+  },
+  onError: (_e, _t, ctx) =&gt; qc.setQueryData(["todos"], ctx.prev),
+  onSettled: () =&gt; qc.invalidateQueries({ queryKey: ["todos"] }),
+});</code></pre></details>
+
+<details><summary>Test with RTL and MSW <span class="tag">testing</span></summary>
+<pre><code>server.use(http.get("/api/user", () =&gt; HttpResponse.json({ name: "Ada" })));
+render(&lt;Profile /&gt;);
+expect(await screen.findByRole("heading", { name: "Ada" })).toBeInTheDocument();
+await userEvent.click(screen.getByRole("button", { name: /save/i }));</code></pre></details>
+
+<details><summary>Useful TS utility types <span class="tag">TS</span></summary>
+<pre><code>type Pick2&lt;T, K extends keyof T&gt; = { [P in K]: T[P] };
+type Partial2&lt;T&gt; = { [P in keyof T]?: T[P] };
+type Awaited2&lt;T&gt; = T extends Promise&lt;infer U&gt; ? Awaited2&lt;U&gt; : T;
+function pluck&lt;T, K extends keyof T&gt;(o: T, k: K): T[K] { return o[k]; }</code></pre></details>
+</section>
+
+<section id="plan">
+<h2>12-week plan</h2>
+<p class="sub">5 daily katas (30-45 min) plus one 2-3 hr weekend build per week.</p>
+<h3>Phase 1: Foundations</h3>
+<table>
+<tr><th>Wk</th><th>Daily katas</th><th>Weekend build</th></tr>
+<tr><td>1 JS core</td><td>debounce, throttle, memoize, Promise.all, Promise.race</td><td>Event emitter and pub/sub store</td></tr>
+<tr><td>2 TypeScript</td><td>Generics, narrowing, Partial/Pick/Omit, mapped types, typed useFetch</td><td>Typed API client with inferred responses</td></tr>
+<tr><td>3 React model</td><td>Stale closure bug, effect deps, keys, useReducer, useRef</td><td>Diagram useState/useEffect internals; todo app without libraries</td></tr>
+<tr><td>4 Custom hooks</td><td>useDebounce, useLocalStorage, useFetch, useIntersection, usePrevious</td><td>Infinite scroll list using your hooks</td></tr>
+</table>
+<h3>Phase 2: Design and quality</h3>
+<table>
+<tr><th>Wk</th><th>Daily katas</th><th>Weekend build</th></tr>
+<tr><td>5 Component APIs</td><td>Modal, Tabs (compound), Accordion, controlled vs. uncontrolled, render prop vs. hook</td><td>Mini design system: Button, Input, Select</td></tr>
+<tr><td>6 State and data</td><td>Place state for 5 scenarios, TanStack Query (cache, mutations, optimistic), URL state</td><td>Data table with sort/filter/pagination in the URL</td></tr>
+<tr><td>7 Testing</td><td>RTL queries, user-event, MSW, async and error paths</td><td>Add behavior tests to the Week 6 table</td></tr>
+<tr><td>8 Accessibility</td><td>Keyboard nav, focus trap, ARIA roles, screen reader pass, contrast</td><td>Accessible combobox/autocomplete</td></tr>
+</table>
+<h3>Phase 3: Performance and depth</h3>
+<table>
+<tr><th>Wk</th><th>Daily katas</th><th>Weekend build</th></tr>
+<tr><td>9 Profiling</td><td>Profiler "find the re-render", memo/useMemo/useCallback before and after, virtualization</td><td>Profile and fix a slow app; written before/after</td></tr>
+<tr><td>10 Browser and web</td><td>Network waterfall, caching headers, Web Vitals, code splitting</td><td>Lighthouse-driven optimization of one page</td></tr>
+<tr><td>11 Framework</td><td>Next.js routing, server vs. client components, data fetching, caching</td><td>Small full-stack feature with RSC</td></tr>
+<tr><td>12 Capstone</td><td>Redo weak spots and failed katas</td><td>Ship a polished mini-app; write a post or give a talk</td></tr>
+</table>
+<h3>After week 12</h3>
+<p class="sub">Weekly: rebuild a real UI (autocomplete, modal, infinite list, data table) with a11y and tests, and profile one app. Monthly: one deep dive (concurrent rendering, library source, system design) with a short note. Quarterly: a stretch project, then teach or write about it.</p>
+</section>
+
+<section id="track">
+<h2>Tracker</h2>
+<p class="sub">Saved in this browser only.</p>
+<div class="card">
+<b id="pt">0 / 0 done</b>
+<div class="bar" role="progressbar" aria-labelledby="pt"><i id="pb"></i></div>
+<button id="rs" type="button">Reset progress</button>
+</div>
+<div id="tk"></div>
+</section>
+
+<section id="rules">
+<h2>Rules of the game</h2>
+<div class="card"><ol>
+<li><b>Cold start:</b> blank file, timer on, no copying.</li>
+<li><b>Score yourself:</b> done in time, needed hints, or failed. Repeat the last two next week.</li>
+<li><b>Spaced repetition:</b> redo Week 1-4 katas every 2 weeks as 10-minute warm-ups.</li>
+<li><b>Log:</b> one line per session about what tripped you up.</li>
+<li><b>Parking lot:</b> new tools go on a list, reviewed at the end of each phase.</li>
+<li><b>Why over how:</b> principles last, APIs change.</li>
+</ol></div>
+<h3>Weekly log template</h3>
+<pre><code>## Week N: topic
+Mon  kata ........ time ... score (done/hints/failed) ... tripped on
+Tue  ...
+Redo next week:
+Parking lot:
+Takeaway:</code></pre>
+</section>
+</main>
+<div class="toast" id="up" hidden>New version available. <button type="button" id="rl">Reload</button></div>
+<script>
+(function(){
+var BUILD="__BUILD__";
+var D=[
+["Phase 1: Foundations",[
+["w1","W1 JS core",["debounce / throttle","memoize","Promise.all / race","Event emitter + store"]],
+["w2","W2 TypeScript",["Generics + narrowing","Utility and mapped types","Typed useFetch","Typed API client"]],
+["w3","W3 React model",["Stale closure fix","Effect deps","Keys, useReducer, useRef","Todo app, no libs"]],
+["w4","W4 Custom hooks",["useDebounce","useLocalStorage","useFetch + abort","useIntersection","Infinite scroll"]]]],
+["Phase 2: Design and quality",[
+["w5","W5 Component APIs",["Modal","Compound Tabs","Accordion","Mini design system"]],
+["w6","W6 State and data",["State placement drill","TanStack Query + optimistic","URL state","Data table"]],
+["w7","W7 Testing",["RTL queries + user-event","MSW handlers","Async and error tests","Table tests"]],
+["w8","W8 Accessibility",["Keyboard nav","Focus trap","ARIA + screen reader pass","Combobox"]]]],
+["Phase 3: Performance and depth",[
+["w9","W9 Profiling",["Find the re-render","memo before/after","Virtualized list","Fix slow app + write-up"]],
+["w10","W10 Browser and web",["Network waterfall","Caching headers","Web Vitals","Lighthouse optimization"]],
+["w11","W11 Framework",["Next.js routing","Server vs. client components","Data fetching + caching","Full-stack RSC feature"]],
+["w12","W12 Capstone",["Redo weak spots","Ship mini-app","Write post / talk"]]]]
+];
+var K="react-prep:done",S={};try{S=JSON.parse(localStorage.getItem(K)||"{}")}catch(e){}
+var tk=document.getElementById("tk"),h="",total=0;
+D.forEach(function(p){
+h+="<h3>"+p[0]+"</h3>";
+p[1].forEach(function(w){
+h+="<details><summary>"+w[1]+"</summary>";
+w[2].forEach(function(t,i){var id=w[0]+"-"+i;total++;
+h+='<label class="ck"><input type="checkbox" data-id="'+id+'"'+(S[id]?" checked":"")+"><span>"+t+"</span></label>"});
+h+="</details>"})});
+tk.innerHTML=h;
+function upd(){var n=0;for(var k in S)if(S[k])n++;
+document.getElementById("pt").textContent=n+" / "+total+" done";
+document.getElementById("pb").style.width=(total?n/total*100:0)+"%"}
+tk.addEventListener("change",function(e){var id=e.target.dataset.id;if(!id)return;
+if(e.target.checked)S[id]=1;else delete S[id];
+try{localStorage.setItem(K,JSON.stringify(S))}catch(x){}upd()});
+document.getElementById("rs").onclick=function(){if(!confirm("Reset all progress?"))return;
+S={};try{localStorage.removeItem(K)}catch(x){}
+tk.querySelectorAll("input").forEach(function(c){c.checked=false});upd()};
+upd();
+
+var th=document.getElementById("th"),r=document.documentElement;
+function lbl(){th.textContent="Theme: "+(localStorage.getItem("theme")||"system")}
+th.onclick=function(){var c=localStorage.getItem("theme"),n=c==="light"?"dark":c==="dark"?"system":"light";
+if(n==="system"){localStorage.removeItem("theme");delete r.dataset.theme}else{localStorage.setItem("theme",n);r.dataset.theme=n}lbl()};
+lbl();
+
+if(BUILD.indexOf("__")!==0&&location.protocol!=="file:"){
+var up=document.getElementById("up");
+document.getElementById("rl").onclick=function(){location.reload()};
+var chk=function(){fetch("version.json",{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){if(j.v!==BUILD)up.hidden=false}).catch(function(){})};
+setInterval(chk,3e5);document.addEventListener("visibilitychange",function(){if(!document.hidden)chk()})}
+})();
+</script>
+</body>
+</html>
